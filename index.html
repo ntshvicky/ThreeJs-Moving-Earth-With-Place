@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3 Js Example for Globe with LatLang</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="three/three.min.js"></script>
+    <script src="three/js/OrbitControls.js"></script>
+    <script src="three/js/WebGL.js"></script>
+    <script src="three/jsm/VRButton.js"></script>
+
+    <link rel="stylesheet" href="customToast.css">
+
+</head>
+<body>
+
+    <button id="btnShowCloud" style="position: absolute; top: 20px; left: 30px;" class="btn btn-success" onclick="showCloud()" >Hide Cloud</button>
+
+  <script type="x-shader/x-vertex" id="vertexShader">
+  varying vec2 vertexUV;
+  varying vec3 vertexNormal; 
+    void main() {
+      vertexUV = uv;
+      vertexNormal = normalize(normalMatrix * normal);;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }        
+</script>
+<script type="x-shader/x-fragment" id="fragmentShader">
+  uniform sampler2D globeTexture;
+  varying vec2 vertexUV; //[0,0.24]
+  varying vec3 vertexNormal;
+
+    void main() {
+      float intensity = 1.05 - dot(vertexNormal, vec3(0.0,0.0,1.0));
+      vec3 atmosphere = vec3(0.3,0.6,1.0) * pow(intensity, 1.5);    
+        gl_FragColor = vec4(atmosphere + texture2D(globeTexture, vertexUV).xyz, 1.0); //vec4(0.4, 1.0, 1.0, 1.0);
+    }
+</script>
+
+
+
+<script type="x-shader/x-vertex" id="atmosphereVertex">
+
+  varying vec3 vertexNormal; 
+    void main() {
+      vertexNormal = normalize(normalMatrix * normal);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 0.9);
+    }        
+</script>
+
+<script type="x-shader/x-fragment" id="atmosphereFragment">
+
+  varying vec3 vertexNormal;
+
+    void main() {
+      float intensity = pow(0.9 - dot(vertexNormal, vec3(0,0,1.0)), 2.0);
+     
+        gl_FragColor = vec4(0.3,0.6,1.0,1.0) * intensity; //vec4(0.4, 1.0, 1.0, 1.0);
+    }
+</script>
+
+<script src="jquery-2.2.3.min.js"></script>
+<script src="customToast.js"></script>
+
+
+
+  <script src="main.js"></script>
+
+  
+<script>
+
+  //msgType = success, error, warning, error
+  function showToast(title, msg, msgType='info', timeout="5000") {
+    toastr.options = {
+      "closeButton": true,
+      "debug": false,
+      "newestOnTop": false,
+      "progressBar": true,
+      "positionClass": "toast-top-right",
+      "preventDuplicates": true,
+      "showDuration": "300",
+      "hideDuration": "1000",
+      "timeOut": timeout,
+      "extendedTimeOut": "1000",
+      "showEasing": "swing",
+      "hideEasing": "linear",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut"
+    };
+    var $toastr = toastr[msgType](msg, title);
+  }
+  
+  
+  </script>
+
+</body>
+</html>
